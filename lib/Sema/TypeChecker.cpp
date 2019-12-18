@@ -402,12 +402,17 @@ TypeCheckSourceFileRequest::evaluate(Evaluator &eval,
       TypeChecker::processREPLTopLevel(*SF, StartElem);
 
     typeCheckFunctionsAndExternalDecls(*SF, TC);
+
+    // SWIFT_ENABLE_TENSORFLOW
+    // We need to type check all the derivative attributes in the module, so
+    // that the differentiation pass knows whether attributes in other files
+    // provide derivative configurations for functions in `SF`.
+    TypeChecker::typeCheckDerivativeAttrs(*SF);
   }
 
   // Checking that benefits from having the whole module available.
-  if (!Ctx.TypeCheckerOpts.DelayWholeModuleChecking) {
+  if (!Ctx.TypeCheckerOpts.DelayWholeModuleChecking)
     performWholeModuleTypeChecking(*SF);
-  }
 
   return true;
 }
